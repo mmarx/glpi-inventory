@@ -1,30 +1,15 @@
-{
-  lib,
-  perlPackages,
-  nix,
-  dmidecode,
-  pciutils,
-  usbutils,
-  iproute2,
-  nettools,
-  fetchFromGitHub,
-  makeWrapper,
-  libredirect,
-  iana-etc,
-  xrandr,
-  xdpyinfo,
-  procps,
-  which,
-}:
-perlPackages.buildPerlPackage {
+{ lib, perlPackages, nix, dmidecode, pciutils, usbutils, iproute2, nettools
+, fetchFromGitHub, makeWrapper, libredirect, iana-etc, xrandr, xdpyinfo, procps
+, which, }:
+perlPackages.buildPerlPackage rec {
   pname = "glpi-agent";
-  version = "1.5";
+  version = "1.7.1";
 
   src = fetchFromGitHub {
     owner = "glpi-project";
     repo = "glpi-agent";
-    rev = "1.5";
-    sha256 = "l5ist5a07X4IG0OsYjqwMvhA5UN9/CxXrVcfhNTaBgc=";
+    rev = "${version}";
+    hash = "sha256-ltchCV4ADDtVFQ//yTrpjZi9PdwNpWHFD4csdAIFwg4=";
   };
 
   patches = [
@@ -42,8 +27,8 @@ perlPackages.buildPerlPackage {
       --replace /sbin/ip ${iproute2}/sbin/ip
   '';
 
-  buildTools = [];
-  nativeBuildInputs = [makeWrapper procps];
+  buildTools = [ ];
+  nativeBuildInputs = [ makeWrapper procps ];
   buildInputs = with perlPackages; [
     CGI
     CpanelJSONXS
@@ -92,19 +77,19 @@ perlPackages.buildPerlPackage {
       if [ -x "$cur" ]; then
         sed -e "s|./lib|$out/lib|" -i "$cur"
         wrapProgram "$cur" --prefix PATH : ${
-      lib.makeBinPath [
-        nix
-        dmidecode
-        iproute2
-        nettools
-        pciutils
-        procps
-        usbutils
-        xdpyinfo
-        xrandr
-        which
-      ]
-    }
+          lib.makeBinPath [
+            nix
+            dmidecode
+            iproute2
+            nettools
+            pciutils
+            procps
+            usbutils
+            xdpyinfo
+            xrandr
+            which
+          ]
+        }
       fi
     done
   '';
@@ -115,8 +100,7 @@ perlPackages.buildPerlPackage {
       "/etc/protocols" = "${iana-etc}/etc/protocols";
       "/etc/services" = "${iana-etc}/etc/services";
     };
-    REDIRECTS =
-      concatStringsSep ":"
+    REDIRECTS = concatStringsSep ":"
       (mapAttrsToList (from: to: "${from}=${to}") redirects);
   in ''
     export NIX_REDIRECTS="${REDIRECTS}" \
@@ -127,7 +111,7 @@ perlPackages.buildPerlPackage {
     unset NIX_REDIRECTS LD_PRELOAD GLPI_SKIP_SOFTWARE_INVENTORY_TEST
   '';
 
-  outputs = ["out"];
+  outputs = [ "out" ];
 
   meta = {
     homepage = "https://glpi-project.org/";
