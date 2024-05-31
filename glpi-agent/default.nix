@@ -1,15 +1,30 @@
-{ lib, perlPackages, nix, dmidecode, pciutils, usbutils, iproute2, nettools
-, fetchFromGitHub, makeWrapper, libredirect, iana-etc, xrandr, xdpyinfo, procps
-, which, }:
+{
+  lib,
+  perlPackages,
+  nix,
+  dmidecode,
+  pciutils,
+  usbutils,
+  iproute2,
+  nettools,
+  fetchFromGitHub,
+  makeWrapper,
+  libredirect,
+  iana-etc,
+  xrandr,
+  xdpyinfo,
+  procps,
+  which,
+}:
 perlPackages.buildPerlPackage rec {
   pname = "glpi-agent";
-  version = "1.7.3";
+  version = "1.9";
 
   src = fetchFromGitHub {
     owner = "glpi-project";
     repo = "glpi-agent";
     rev = "${version}";
-    hash = "sha256-bIYT9EV9ZWf5j8E72gaz3Cdr2s7w75OxghnpbMkCg+Q=";
+    hash = "sha256-3OblgKco7/vYCXDuWzEWq+3Rwr032HSeBISQI74IEYs=";
   };
 
   patches = [
@@ -28,7 +43,10 @@ perlPackages.buildPerlPackage rec {
   '';
 
   buildTools = [ ];
-  nativeBuildInputs = [ makeWrapper procps ];
+  nativeBuildInputs = [
+    makeWrapper
+    procps
+  ];
   buildInputs = with perlPackages; [
     CGI
     CpanelJSONXS
@@ -94,19 +112,20 @@ perlPackages.buildPerlPackage rec {
     done
   '';
 
-  preCheck = let
-    inherit (lib) concatStringsSep mapAttrsToList;
-    redirects = {
-      "/etc/protocols" = "${iana-etc}/etc/protocols";
-      "/etc/services" = "${iana-etc}/etc/services";
-    };
-    REDIRECTS = concatStringsSep ":"
-      (mapAttrsToList (from: to: "${from}=${to}") redirects);
-  in ''
-    export NIX_REDIRECTS="${REDIRECTS}" \
-      LD_PRELOAD=${libredirect}/lib/libredirect.so \
-      GLPI_SKIP_SOFTWARE_INVENTORY_TEST=1
-  '';
+  preCheck =
+    let
+      inherit (lib) concatStringsSep mapAttrsToList;
+      redirects = {
+        "/etc/protocols" = "${iana-etc}/etc/protocols";
+        "/etc/services" = "${iana-etc}/etc/services";
+      };
+      REDIRECTS = concatStringsSep ":" (mapAttrsToList (from: to: "${from}=${to}") redirects);
+    in
+    ''
+      export NIX_REDIRECTS="${REDIRECTS}" \
+        LD_PRELOAD=${libredirect}/lib/libredirect.so \
+        GLPI_SKIP_SOFTWARE_INVENTORY_TEST=1
+    '';
   postCheck = ''
     unset NIX_REDIRECTS LD_PRELOAD GLPI_SKIP_SOFTWARE_INVENTORY_TEST
   '';
