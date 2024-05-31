@@ -3,27 +3,32 @@
 
   inputs = {
     utils.url = "github:gytis-ivaskevicius/flake-utils-plus";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
   };
 
-  outputs = inputs@{ self, nixpkgs, utils, ... }:
+  outputs =
+    inputs@{
+      self,
+      nixpkgs,
+      utils,
+      ...
+    }:
     utils.lib.mkFlake {
       inherit self inputs;
 
       overlays = rec {
-        glpi-inventory = final: prev: {
-          glpi-agent = final.callPackage ./glpi-agent { };
-        };
+        glpi-inventory = final: prev: { glpi-agent = final.callPackage ./glpi-agent { }; };
         default = glpi-inventory;
       };
 
-      nixosModules = { glpi-inventory = ./glpi-inventory.nix; };
+      nixosModules = {
+        glpi-inventory = ./glpi-inventory.nix;
+      };
 
       channels.nixpkgs.overlaysBuilder = channels: [ self.overlays.default ];
 
       outputsBuilder = channels: {
-        packages = utils.lib.exportPackages { inherit (self.overlays) default; }
-          channels;
+        packages = utils.lib.exportPackages { inherit (self.overlays) default; } channels;
       };
     };
 }
