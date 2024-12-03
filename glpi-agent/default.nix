@@ -1,20 +1,20 @@
 {
   lib,
-  perlPackages,
-  nix,
   dmidecode,
-  pciutils,
-  usbutils,
-  iproute2,
-  nettools,
   fetchFromGitHub,
-  makeWrapper,
-  libredirect,
   iana-etc,
-  xrandr,
-  xdpyinfo,
+  iproute2,
+  libredirect,
+  makeWrapper,
+  nettools,
+  nix,
+  pciutils,
+  perlPackages,
   procps,
+  usbutils,
   which,
+  xdpyinfo,
+  xrandr,
 }:
 perlPackages.buildPerlPackage rec {
   pname = "glpi-agent";
@@ -48,6 +48,7 @@ perlPackages.buildPerlPackage rec {
     procps
   ];
   buildInputs = with perlPackages; [
+    ArchiveZip
     CGI
     CpanelJSONXS
     DataStructureUtil
@@ -66,6 +67,7 @@ perlPackages.buildPerlPackage rec {
     ModuleInstall
     NetSNMP
     ParallelForkManager
+    ParseEDID
     TestCPANMeta
     TestDeep
     TestException
