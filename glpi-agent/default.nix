@@ -67,7 +67,6 @@ perlPackages.buildPerlPackage rec {
     NetSNMP
     ParallelForkManager
     TestCPANMeta
-    TestCompile
     TestDeep
     TestException
     TestMockModule
