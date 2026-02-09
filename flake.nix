@@ -2,32 +2,33 @@
   description = "GLPI inventory for NixOS";
 
   inputs = {
-    utils.url = "github:gytis-ivaskevicius/flake-utils-plus";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    dried-nix-flakes.url = "github:cyberus-technology/dried-nix-flakes";
+    nixpkgs.url = "https://channels.nixos.org/nixos-25.11/nixexprs.tar.xz";
   };
 
   outputs =
-    inputs@{
-      self,
-      utils,
-      ...
-    }:
-    utils.lib.mkFlake {
-      inherit self inputs;
+    inputs:
+    inputs.dried-nix-flakes inputs (inputs: {
+      overlays =
+        let
+          glpi-inventory = final: prev: { glpi-agent = final.callPackage ./glpi-agent { }; };
+        in
+        {
+          inherit glpi-inventory;
+          default = glpi-inventory;
+        };
 
-      overlays = rec {
-        glpi-inventory = final: prev: { glpi-agent = final.callPackage ./glpi-agent { }; };
-        default = glpi-inventory;
-      };
+      packages =
+        let
+          glpi-agent = inputs.nixpkgs.legacyPackages.callPackage ./glpi-agent { };
+        in
+        {
+          inherit glpi-agent;
+          default = glpi-agent;
+        };
 
       nixosModules = {
         glpi-inventory = ./glpi-inventory.nix;
       };
-
-      channels.nixpkgs.overlaysBuilder = channels: [ self.overlays.default ];
-
-      outputsBuilder = channels: {
-        packages = utils.lib.exportPackages { inherit (self.overlays) default; } channels;
-      };
-    };
+    });
 }
