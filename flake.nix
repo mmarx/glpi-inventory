@@ -3,7 +3,7 @@
 
   inputs = {
     dried-nix-flakes.url = "github:cyberus-technology/dried-nix-flakes";
-    nixpkgs.url = "https://channels.nixos.org/nixos-25.11/nixexprs.tar.xz";
+    nixpkgs.url = "https://channels.nixos.org/nixos-26.05/nixexprs.tar.xz";
   };
 
   outputs =
